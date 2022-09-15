@@ -1,15 +1,24 @@
 import React from 'react'
 import MeetUpDetail from '../../components/meetups/MeetUpDetail';
 import { MongoClient, ObjectId } from 'mongodb';
+import Head from 'next/head';
 
 function MeetupDetails(props) {
     return (
-        <MeetUpDetail
-            img={props.meetupData.image}
-            title={props.meetupData.title}
-            address={props.meetupData.address}
-            description={props.meetupData.description}
-        />
+        <>
+            <Head>
+                <title>{props.meetupData.title}</title>
+                <meta name='description'
+                    content={props.meetupData.description}
+                />
+            </Head>
+            <MeetUpDetail
+                img={props.meetupData.image}
+                title={props.meetupData.title}
+                address={props.meetupData.address}
+                description={props.meetupData.description}
+            />
+        </>
 
     )
 }
@@ -38,7 +47,7 @@ export async function getStaticPaths() {
         // This key tells NextJS whether your paths array
         // contains all supported parameter values or just some of them.
         //false : yaane super all meetupId values
-        fallback: false,
+        fallback: 'blocking',
         paths: meetups.map((meetup) => ({ params: { meetupId: meetup._id.toString() } }))
         // paths: [
         //     { params: { meetupId: 'm1' } },
