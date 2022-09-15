@@ -1,13 +1,14 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import MeetUpDetail from '../../components/meetups/MeetUpDetail';
+import { MongoClient, ObjectId } from 'mongodb';
 
-function MeetupDetails() {
+function MeetupDetails(props) {
     return (
         <MeetUpDetail
-            img='https://media-cdn.tripadvisor.com/media/photo-s/21/db/89/f0/view.jpg'
-            title='A First Meetup'
-            address='Some Street 5 , Some city'
-            description='This is a first meetup'
+            img={props.meetupData.image}
+            title={props.meetupData.title}
+            address={props.meetupData.address}
+            description={props.meetupData.description}
         />
 
     )
@@ -19,6 +20,18 @@ function MeetupDetails() {
 //we export only in a dynamic page and you using getStaticProps(){}
 
 export async function getStaticPaths() {
+
+    //generating our array of path dynamically
+
+    const client = await MongoClient.connect('mongodb+srv://omar:111fifantore@cluster0.l9nezt7.mongodb.net/meetups?retryWrites=true&w=majority');
+    const db = client.db();
+    const meetupsCollection = db.collection('meetups');
+    //find gives me access to all the meetup
+    //we only fetch the id
+    const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
+    // console.log(meetups);[{}, {}, {}]
+    client.close();
+
     return {
         // which you need to add in this returned object
         // next to your paths key, the fallback key.
@@ -26,29 +39,44 @@ export async function getStaticPaths() {
         // contains all supported parameter values or just some of them.
         //false : yaane super all meetupId values
         fallback: false,
-        paths: [
-            { params: { meetupId: 'm1' } },
-            { params: { meetupId: 'm2' } },
-        ]
+        paths: meetups.map((meetup) => ({ params: { meetupId: meetup._id.toString() } }))
+        // paths: [
+        //     { params: { meetupId: 'm1' } },
+        //     { params: { meetupId: 'm2' } },
+        // ]
     }
 }
 
 
 
+//fetch data dynamically
 export async function getStaticProps(context) {
     // fetch data for a single meetup
     //get id
     const meetupId = context.params.meetupId;
-    console.log(meetupId);
+    const client = await MongoClient.connect('mongodb+srv://omar:111fifantore@cluster0.l9nezt7.mongodb.net/meetups?retryWrites=true&w=majority');
+    const db = client.db();
+    const meetupsCollection = db.collection('meetups');
+    //get access to a single meetup not all meetup
+    const selectedMeetup = await meetupsCollection.findOne({
+        // we need to convert it from string
+        // to such a object ID thing
+        // and for this, from MongoDB,
+        // you should import ObjectId
+        _id: ObjectId(meetupId),
+    });
+    // console.log(selectedMeetup); { id:ss, title:"dd"...}
+    client.close();
+
     return {
         props: {
             meetupData: {
-                img: 'https://media-cdn.tripadvisor.com/media/photo-s/21/db/89/f0/view.jpg',
-                id: meetupId,
-                title: 'A First Meetup',
-                address: 'Some Street 5 , Some city',
-                description: 'This is a first meetup',
-
+                //convert the id to string
+                id: selectedMeetup._id.toString(),
+                title: selectedMeetup.title,
+                address: selectedMeetup.address,
+                image: selectedMeetup.image,
+                description: selectedMeetup.description
             }
         }
     }

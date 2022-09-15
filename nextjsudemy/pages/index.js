@@ -56,6 +56,26 @@ export async function getStaticProps() {
 
 
 
+//             const meetups = await meetupsCollection.find().toArray();
+// we can use the meetupsCollection
+
+// to call the find method there
+
+// and find() will by default find
+
+// all the documents in that collection.
+
+//     It's an async task, returning a promise
+
+// which we can await here
+
+// because I'm using the async keyword here.
+
+// And then ultimately we'll therefore get our meetups here.
+
+// To be precise we, 
+
+
 /*
 //run for every request 
 //regenerated every time
