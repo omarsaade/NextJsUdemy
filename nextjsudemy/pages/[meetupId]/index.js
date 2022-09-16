@@ -41,6 +41,7 @@ export async function getStaticPaths() {
     // console.log(meetups);[{}, {}, {}]
     client.close();
 
+
     return {
         // which you need to add in this returned object
         // next to your paths key, the fallback key.
